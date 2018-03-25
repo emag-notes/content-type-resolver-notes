@@ -14,6 +14,7 @@ import org.apache.tika.detect.Detector
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.mime.MediaType
+import play.api.libs.ws.StandaloneWSResponse
 import play.api.libs.ws.ahc.StandaloneAhcWSClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,14 +45,15 @@ class StreamWithTikaSpec extends BaseSpec {
         val ct: ContentType = resp
           .header("Content-Type")
           .flatMap(str => ContentType.parse(str).toOption)
-          .getOrElse {
-            val in        = resp.bodyAsBytes.iterator.asInputStream
-            val mediaType = detector.detect(TikaInputStream.get(in), new Metadata())
-            println(s"????? $mediaType")
-            ContentType.parse(mediaType.toString).getOrElse(ContentTypes.NoContentType)
-          }
+          .getOrElse(guessContentType(resp))
         resp.bodyAsSource.runForeach(_ => println(s"###### $ct"))
       }
+  }
+
+  private def guessContentType(resp: StandaloneWSResponse): ContentType = {
+    val in        = resp.bodyAsBytes.iterator.asInputStream
+    val mediaType = detector.detect(TikaInputStream.get(in), new Metadata())
+    ContentType.parse(mediaType.toString).getOrElse(ContentTypes.NoContentType)
   }
 
   it should "detect content-type with Flow" in {
