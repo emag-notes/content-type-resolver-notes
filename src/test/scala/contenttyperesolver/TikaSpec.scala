@@ -5,9 +5,8 @@ import org.apache.tika.detect.Detector
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.mime.MediaType
-import org.scalatest.{DiagrammedAssertions, FlatSpecLike, Matchers}
 
-class TikaSpec extends FlatSpecLike with Matchers with DiagrammedAssertions {
+class TikaSpec extends BaseSpec {
 
   val tika               = new TikaConfig()
   val detector: Detector = tika.getDetector
